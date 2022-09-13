@@ -33,6 +33,12 @@ const (
 	HASH     = 35
 )
 
+type Comment struct {
+	Offset int
+	Length int
+	Lines  int
+}
+
 func translate(s []byte) []byte {
 	var (
 		i       int
@@ -53,13 +59,15 @@ func translate(s []byte) []byte {
 		if ch == QUOTE && !comment.startted {
 			quote = !quote
 		}
-		if (ch == SPACE || ch == TAB) && !quote {
-			continue
-		}
+		//if (ch == SPACE || ch == TAB) && !quote {
+		//	continue
+		//}
 		if ch == NEWLINE {
 			if comment.isSingleLined {
 				comment.stop()
 			}
+			j[i] = ch
+			i++
 			continue
 		}
 		if quote && !comment.startted {
@@ -68,6 +76,8 @@ func translate(s []byte) []byte {
 			continue
 		}
 		if comment.startted {
+			j[i] = ' '
+			i++
 			if ch == ASTERISK && !comment.isSingleLined {
 				comment.canEnd = true
 				continue
@@ -80,6 +90,10 @@ func translate(s []byte) []byte {
 			continue
 		}
 		if comment.canStart && (ch == ASTERISK || ch == SLASH) {
+			j[i] = ' '
+			i++
+			j[i] = ' '
+			i++
 			comment.start(ch)
 			continue
 		}
@@ -88,6 +102,8 @@ func translate(s []byte) []byte {
 			continue
 		}
 		if ch == HASH {
+			j[i] = ' '
+			i++
 			comment.start(ch)
 			continue
 		}
